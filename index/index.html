@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motus</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #add8e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            text-align: center;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 50px);
+            grid-gap: 5px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: #0074cc;
+            color: white;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        .cell.correct {
+            background-color: #ff0000;
+        }
+
+        .cell.present {
+            background-color: #ffd700;
+        }
+
+        .cell.absent {
+            background-color: #0074cc;
+        }
+
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 40px);
+            grid-gap: 5px;
+            justify-content: center;
+        }
+
+        .key {
+            width: 40px;
+            height: 40px;
+            background-color: #0074cc;
+            color: white;
+            font-size: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .key.disabled {
+            background-color: #cccccc;
+            pointer-events: none;
+        }
+
+        .controls {
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #0074cc;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #005fa3;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>MOTUS</h1>
+        <div class="grid" id="grid"></div>
+        <div class="keyboard" id="keyboard"></div>
+        <div class="controls">
+            <button onclick="submitWord()">Entrer</button>
+            <button onclick="deleteLetter()">Supprimer</button>
+        </div>
+    </div>
+
+    <script>
+        const wordToGuess = "ANIMAL"; // Mot à deviner
+        const maxAttempts = 6;
+        let currentAttempt = 0;
+        let currentWord = "";
+
+        const grid = document.getElementById("grid");
+        const keyboard = document.getElementById("keyboard");
+
+        function initGame() {
+            // Créer la grille
+            for (let i = 0; i < maxAttempts; i++) {
+                for (let j = 0; j < wordToGuess.length; j++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.id = `cell-${i}-${j}`;
+                    grid.appendChild(cell);
+                }
+            }
+
+            // Créer le clavier
+            const keys = "AZERTYUIOPQSDFGHJKLMWXCVBN".split("");
+            keys.forEach(key => {
+                const keyElement = document.createElement("div");
+                keyElement.classList.add("key");
+                keyElement.textContent = key;
+                keyElement.onclick = () => addLetter(key);
+                keyboard.appendChild(keyElement);
+            });
+        }
+
+        function addLetter(letter) {
+            if (currentWord.length < wordToGuess.length) {
+                currentWord += letter;
+                const cell = document.getElementById(`cell-${currentAttempt}-${currentWord.length - 1}`);
+                cell.textContent = letter;
+            }
+        }
+
+        function deleteLetter() {
+            if (currentWord.length > 0) {
+                const cell = document.getElementById(`cell-${currentAttempt}-${currentWord.length - 1}`);
+                cell.textContent = "";
+                currentWord = currentWord.slice(0, -1);
+            }
+        }
+
+        function submitWord() {
+            if (currentWord.length !== wordToGuess.length) {
+                alert("Le mot doit avoir 6 lettres.");
+                return;
+            }
+
+            for (let i = 0; i < wordToGuess.length; i++) {
+                const cell = document.getElementById(`cell-${currentAttempt}-${i}`);
+                if (currentWord[i] === wordToGuess[i]) {
+                    cell.classList.add("correct");
+                } else if (wordToGuess.includes(currentWord[i])) {
+                    cell.classList.add("present");
+                } else {
+                    cell.classList.add("absent");
+                }
+            }
+
+            if (currentWord === wordToGuess) {
+                alert("Félicitations, vous avez trouvé le mot !");
+                return;
+            }
+
+            currentAttempt++;
+            currentWord = "";
+
+            if (currentAttempt === maxAttempts) {
+                alert("Dommage, le mot était : " + wordToGuess);
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>
